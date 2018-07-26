@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+
+<style type="text/css">
+    ul{
+		margin: 0;
+        padding: 0;
+        list-style: none;
+        background: #333333;
+    }
+    ul li{
+        display: inline-block;
+        position: relative;
+        width: 210px;
+        height: 40px;
+        margin-right: 29px;
+        line-height: 31px;
+        text-align: center;
+    }
+    ul li a{
+        display: block;
+        padding: 8px 25px;
+        color: white;
+        text-decoration: none;
+    }
+   ul li a:hover{
+        color: #fff;
+        background: #939393;
+    }
+
+    ul li ul.dropdown{
+        max-width: 100%; /* Set width of the dropdown */
+        background: #333333;
+        display: none;
+        position: absolute;
+		z-index:999;
+        left: 0;
+    }
+    ul li:hover ul.dropdown{
+        display: block;	/* Display the dropdown *
+	}
+    ul li ul.dropdown li{
+        display: block;
+    }
+</style>
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+</script>
+<script>
+var hcount=0,acount=0;
+function get_details()
+{
+
+
+  $.ajax({
+            type: "GET",
+            url:"/host/",
+            dataType: "json",
+            success: function (data) {
+                console.log(data)
+                 <!--Clear exiting data here-->
+                 $('#Hselect')
+                    .find('option')
+                    .remove()
+                    .end()
+                $.each(data.data,function(i,obj)
+                {
+                <!--console.log(obj)-->
+                var div_data="<option value="+obj+">"+obj+"</option>";
+                $(div_data).appendTo('#Hselect');
+                });
+                }
+          });
+
+
+
+$.ajax({
+            type: "GET",
+            url:"/testcases/",
+            dataType: "json",
+            success: function (data) {
+                console.log(data)
+                 <!--Clear exiting data here-->
+                 $('#Tselect')
+                    .find('option')
+                    .remove()
+                    .end()
+                $.each(data.data,function(i,obj)
+                {
+                <!--console.log(obj)-->
+                var div_data="<option value="+obj+">"+obj+"</option>";
+                $(div_data).appendTo('#Tselect');
+                });
+                }
+          });
+
+
+$.ajax({
+            type: "GET",
+            url:"/appliance/",
+            dataType: "json",
+            success: function (data) {
+                console.log(data)
+                 <!--Clear exiting data here-->
+                 $('#Aselect')
+                    .find('option')
+                    .remove()
+                    .end()
+                $.each(data.data,function(i,obj)
+                {
+                <!--console.log(obj)-->
+                var div_data="<option value="+obj+">"+obj+"</option>";
+                $(div_data).appendTo('#Aselect');
+                });
+                }
+          });
+}
+
+</script>
+<!--function root()-->
+<!--{-->
+<!--var tadata = document.getElementById('views').value;-->
+
+      <!--$.ajax( {-->
+                <!--type: "POST",-->
+                <!--url: "/root/",-->
+                <!--contentType: "application/json",-->
+                <!--crossDomain: true, // enable this-->
+                <!--dataType: "json",-->
+                <!--data: {'data':'tadata'},-->
+
+
+
+
+        <!--})-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+</script>
+<script>
+function get_Hdd()
+{
+hcount=hcount+1;
+document.getElementById('Hdemo').innerHTML="<select id='Hselect2'></select>";
+
+$.ajax({
+            type: "GET",
+            url:"/host/",
+            dataType: "json",
+            success: function (data) {
+                console.log(data)
+                 <!--Clear exiting data here-->
+                 $('#Hselect2')
+                    .find('option')
+                    .remove()
+                    .end()
+                $.each(data.data,function(i,obj)
+                {
+                <!--console.log(obj)-->
+                var div_data="<option value="+obj+">"+obj+"</option>";
+                $(div_data).appendTo('#Hselect2');
+                });
+                }
+          });
+
+
+}
+
+
+function get_Add()
+{
+acount=acount+1;
+document.getElementById('Ademo').innerHTML="<select id='Aselect2'></select>";
+
+$.ajax({
+            type: "GET",
+            url:"/appliance/",
+            dataType: "json",
+            success: function (data) {
+                console.log(data)
+                 <!--Clear exiting data here-->
+                 $('#Aselect2')
+                    .find('option')
+                    .remove()
+                    .end()
+                $.each(data.data,function(i,obj)
+                {
+                <!--console.log(obj)-->
+                var div_data="<option value="+obj+">"+obj+"</option>";
+                $(div_data).appendTo('#Aselect2');
+                });
+                }
+          });
+
+
+}
+function get_history()
+{
+document.getElementById('com').innerHTML="<textarea id='history' class='ta' rows='10' cols='90'></textarea>";
+$.ajax({
+            type: "GET",
+            url:"/history/",
+            dataType: "json",
+            contentType: "application/json",
+            success: function (data)
+            {
+                for(i=0;i<data.length;i++)
+
+                {
+                console.log(data[i].command)
+                 <!--$(data[i].command).appendTo('#history')-->
+                 document.getElementById("history").value += i+1+"."
+                 document.getElementById("history").value += data[i].command+"\n"
+                 <!--var myLineBreak = history.replace(/\r\n|\r|\n/g,"\n");-->
+
+
+                }
+                 <!--Clear exiting data here-->
+                 <!--$('#history')-->
+                    <!--.remove()-->
+                    <!--.end()-->
+                <!--$.each(data.command,function(i,obj)-->
+                <!--{-->
+                <!--console.log(obj)-->
+                <!--var div_data=obj.username;-->
+                <!--var div_name=obj.command;-->
+                <!--console.log(div_data)-->
+                $(data[0].username).appendTo('#history');
+                <!--});-->
+
+                }
+          });
+
+
+
+}
+
+
+</script>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+</script>{% csrf_token %}
+<script>
+
+
+function get_options()
+{
+
+var host=document.getElementById('Hselect').value;
+var testcases=document.getElementById('Tselect').value;
+var app=document.getElementById('Aselect').value;
+
+
+$(document).ready(function(){
+    function getCookie(c_name) {
+        if(document.cookie.length > 0) {
+            c_start = document.cookie.indexOf(c_name + "=");
+            if(c_start != -1) {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(";", c_start);
+                if(c_end == -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start,c_end));
+            }
+        }
+        return "";
+    }
+
+    $(function () {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken")
+            }
+        });
+    });
+});
+if(hcount==0 && acount==0)
+{
+var myEvent = {'host': host, 'test': testcases, 'app': app}
+ $.ajax( {
+
+                type: "POST",
+                url: "/getoptions/",
+
+                data: JSON.stringify(myEvent),
+                contentType: "application/json; charset=utf-8",
+                crossDomain: true, // enable this
+                dataType: "json",
+                success: function (returnObject) { //msg.Data.TransactionList
+                    // Do whatever you want to do
+
+                }
+
+          });
+
+}
+
+else if(acount==0 && hcount==1)
+{
+
+
+var hdd=document.getElementById('Hselect2').value;
+var myevent2={'host': host, 'test': testcases, 'app': app,'host2':hdd}
+$.ajax( {
+
+                type: "POST",
+                url: "/getoptions/",
+
+                data: JSON.stringify(myevent2),
+                contentType: "application/json; charset=utf-8",
+                crossDomain: true, // enable this
+                dataType: "json",
+                success: function (returnObject) { //msg.Data.TransactionList
+                    // Do whatever you want to do
+
+                }
+
+          });
+
+}
+
+
+else if(acount==1 && hcount==0)
+{
+var add=document.getElementById('Aselect2').value;
+var myEvent1 = {'host': host, 'test': testcases, 'app': app,'app1':add}
+
+
+ $.ajax( {
+
+                type: "POST",
+                url: "/getoptions/",
+
+                data: JSON.stringify(myEvent1),
+                contentType: "application/json; charset=utf-8",
+                crossDomain: true, // enable this
+                dataType: "json",
+                success: function (returnObject) { //msg.Data.TransactionList
+                    // Do whatever you want to do
+
+                }
+
+          });
+
+}
+
+else
+{
+var add=document.getElementById('Aselect2').value;
+var hdd=document.getElementById('Hselect2').value;
+var myevent3={'host': host, 'test': testcases, 'app': app,'host2':hdd,'app2':add}
+$.ajax( {
+
+                type: "POST",
+                url: "/getoptions/",
+
+                data: JSON.stringify(myevent3),
+                contentType: "application/json; charset=utf-8",
+                crossDomain: true, // enable this
+                dataType: "json",
+                success: function (returnObject) { //msg.Data.TransactionList
+                    // Do whatever you want to do
+
+                }
+
+          });
+
+
+}
+
+}
+
+
+</script>
+
+<img src='{% static "actifiologo.png" %}' width=1520 height=262>
+     <ul>
+        <li><a href="https://www.actifio.com/#sthash.xCKDJxGC.dpbs">Home</a></li>
+        <li><a href="https://www.actifio.com/company/">About</a></li>
+        <li>
+            <a href="#">Products</a>
+            <ul class="dropdown">
+                <li><a href="https://www.actifio.com/database-cloning/#sthash.chu3v0Kn.dpbs">SKY DB</a></li>
+                <li><a href="https://www.actifio.com/data-management-for-ibm-cloud/">SKY for IBM cloud</a></li>
+                <li><a href="https://www.actifio.com/technology/integrations/oracle/">SKY for Oracle cloud</a></li>
+            </ul>
+        </li>
+		<li><a href="#">Services</a>
+			<ul class="dropdown">
+				<li><a href="https://www.actifio.com/global-services/">Global Services</a></li>
+                <li><a href="https://www.actifio.com/global-services/actifio-consultancy-services/">Consulting</a></li>
+			</ul>
+		</li>
+        <li><a href="#">Contact</a></li>
+         <li><form method="post" action="/logout/">{% csrf_token %} <input type="submit" value="Logout"></form></li>
+    </ul>
+<br>
+<br><br>
+<!--<textarea id='history' class="ta" rows="10" cols="90"></textarea>-->
+
+
+    <form method="post" action="/root/">
+        {% csrf_token %}
+<center>Workspace location:<textarea id="views" name="views" cols="40" rows="2"></textarea><br>
+    &emsp;&emsp;&emsp;&emsp;&emsp;<input type="submit" value="submit">&emsp;<input type="button" value="dropdown menu" onclick="get_details()"></center>
+    </form>
+<br><br><br>
+
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+&emsp;&emsp;&emsp;&emsp;&emsp;
+Testcases:<select id="Tselect">
+    <option> </option>
+	</select>
+
+
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+&emsp;&emsp;&emsp;&emsp;&emsp;
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+&emsp;&emsp;
+Host:<select id="Hselect">
+    <option> </option>
+</select>
+
+<button onclick="get_Hdd()">+</button>
+<p style="display:inline" id="Hdemo"></p>
+
+<br><br><br>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+&emsp;
+Appliances:<select id="Aselect" align="center">
+    <option> </option>
+	</select>
+<button onclick="get_Add()">+</button>
+<p style="display:inline" id="Ademo"></p>
+
+
+
+<br>
+<br><br>
+<br>
+
+<input type="button" value="Execute" onclick="get_options()">&emsp;&emsp;<button onclick="get_history()">history</button>
+<p id="com" style="display:inline"></p>
+<br>
+<br>
+
+<textarea id='body' class="body" cols="207" rows="18"></textarea>
+
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>Login</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+</script>
+</head>
+<center>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+<body backgorund='{% static "login.png" %}'>
+
+
+
+    <form method="POST" action="actifio/">
+        {% csrf_token %}
+        <style>
+        p  {
+            color: red;
+            font-family: courier;
+            font-size: 160%;
+            }
+
+         h1 {
+             color: orangered;
+             font-family: verdana;
+             font-size: 300%;
+            }
+         </style>
+         <h1>ACTIFIO</h1>
+        <p>
+            <label>Username</label>
+            <input type="text" name="username">
+        </p>
+        <p>
+            <label>Password</label>
+            <input type="password" name="password">
+            </br>
+            </br>
+            <button style="height: 35px; width: 100px"type="submit">Login</button>
+
+        </p>
+        <a href="register/">Register</a><br>
+
+        {{error}}
+    </form>
+</body>
+</center>
+</html>
