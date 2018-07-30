@@ -1,14 +1,17 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render,redirect
-from .serializers import UserSerializer,SimpleDataSerializer,get_commandsserializer, UserSessionLog
+from django.shortcuts import render, redirect
+from .serializers import UserSerializer, SimpleDataSerializer, get_commandsserializer, UserSessionLog
 from rest_framework import viewsets
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from rest_framework.response import Response  
+from rest_framework.response import Response
+from .library import asyncio_stream
+from .serializers import *
 from .forms import UserRegistrationForm
 from django.forms.models import model_to_dict
-from django.contrib.auth import authenticate, login,logout
-from django.contrib import messages
 from .library import timer
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+# from myapp.library import timer
 from rest_framework.decorators import api_view
 from .models import *
 import os
@@ -16,7 +19,9 @@ from django.urls import reverse
 import uuid
 from django.utils import timezone
 import datetime
+from django.db.models import Q
 from rest_framework import serializers
+
 
 class UserViewSet(viewsets.ModelViewSet):
 
@@ -31,24 +36,23 @@ class UserViewSet(viewsets.ModelViewSet):
 #     def perform_create(self, serializer):
 #         """Save the post data when creating a new bucketlist."""
 #         serializer.save()
-        
-        
+
 
 def home(request):
     if not request.session.session_key:
         return render(request, 'logindemo.html')
     else:
 
-        return render(request,'demo.html',{'rc':user_execution_session_log.command.__dict__})
-       # return HttpResponseRedirect('/actifio/')
+        return render(request, 'demo.html', {'rc': user_execution_session_log.command.__dict__})
+        # return HttpResponseRedirect('/actifio/')
 
 
 def user_login(request):
         global suser
-        #suser=request.session['username']
-        context={}
+        # suser=request.session['username']
+        context = {}
         if request.method == 'POST':
-        
+
                 username = request.POST['username']
                 password = request.POST['password']
                 user = authenticate(username=username, password=password)
@@ -60,18 +64,18 @@ def user_login(request):
                     login(request, user)
                     # ststart=datetime.datetime.now(tz=timezone.utc)
                     return HttpResponseRedirect(reverse('home'))
-                    #return render(request, "demo.html")
+                    # return render(request, "demo.html")
                 else:
-                    context["error"]="username or password is not correct"
-                    return render(request,'logindemo.html',context)
+                    context["error"] = "username or password is not correct"
+                    return render(request, 'logindemo.html', context)
 
-            #else:
-                #return render(request,'demo.html')
+            # else:
+                # return render(request,'demo.html')
 
         else:
-            return render(request,'logindemo.html')
-    
-    
+            return render(request, 'logindemo.html')
+
+
 def user_logout(request):
         del request.session['username']
         logout(request)
@@ -87,8 +91,8 @@ def register(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             userObj = form.cleaned_data
-            username =userObj['username']
-            email =userObj['email']
+            username = userObj['username']
+            email = userObj['email']
             password = userObj['password']
 
             if not (User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists()):
@@ -100,7 +104,7 @@ def register(request):
                 messages.info(request, message="Username or password already exists")
     else:
         form = UserRegistrationForm()
-        return render(request, 'register.html', {'form' : form})
+        return render(request, 'register.html', {'form': form})
 
 
 # def hello_world(request):
@@ -109,12 +113,14 @@ def register(request):
 #
 #         return render(request,{{'data':dict(a.time())}})
 
+
 @api_view(['GET'])
 def filenames_host(request):
     global root
     smp = SimpleData()
-    root_inv=os.path.join(root,'inv')
-    root_host = os.path.join(root_inv,'host')#"C:/Users/pamid/PycharmProjects/djagoproject/robot/inv/host"
+    root_inv = os.path.join(root, 'inv')
+    root_host = os.path.join(root_inv, 'host')
+    # "C:/Users/pamid/PycharmProjects/djagoproject/robot/inv/host"
     for path, dirs, files in os.walk(root_host):
             for f in files:
                 if f.endswith('.py'):
@@ -124,19 +130,20 @@ def filenames_host(request):
     # inventory_files_obj = Inventory.objects.all().values(*demo)
     # serializer = Inventoryserializer(inventory_files_obj, many=True)
     # serializer = SimpleDataSerializer(SimpleData(demo))
-    #print(type(smp.data))
-    #print(','.join(smp.data))
-    #data=SimpleData.objects.filter(id=SimpleData.data)
+    # print(type(smp.data))
+    # print(','.join(smp.data))
+    # data=SimpleData.objects.filter(id=SimpleData.data)
 
     # return Response({','.join(smp.data)})
     return Response(smp.__dict__)
 # return render(request, )
 
+
 def get_workspace(request):
     global root
-    if request.method=='POST':
-        root=request.POST['views']
-        #return HttpResponseRedirect(reverse('appliance'))
+    if request.method == 'POST':
+        root = request.POST['views']
+        # return HttpResponseRedirect(reverse('appliance'))
 
         return redirect('/')
     else:
@@ -147,8 +154,9 @@ def get_workspace(request):
 @api_view(['GET'])
 def filenames_testcases(request):
     global root
-    smp_suites=SimpleData()
-    root_testcases=os.path.join(root,'suites')#"C:/Users/pamid/PycharmProjects/djagoproject/robot/suites"
+    smp_suites = SimpleData()
+    root_testcases = os.path.join(root, 'suites')
+    # "C:/Users/pamid/PycharmProjects/djagoproject/robot/suites"
     for path, dirs, files in os.walk(root_testcases):
             for f in files:
                 if f.endswith('.robot'):
@@ -159,24 +167,25 @@ def filenames_testcases(request):
 @api_view(['GET'])
 def filenames_appliance(request):
     global root
-    smp_suites=SimpleData()
-    root_inv=os.path.join(root,'inv')
-    root_app=os.path.join(root_inv,'appliance')#"C:/Users/pamid/PycharmProjects/djagoproject/robot/inv/appliance"
-    files=os.listdir(root_app)
-    #for path, dirs, files in os.walk(root_app):
+    smp_suites = SimpleData()
+    root_inv = os.path.join(root, 'inv')
+    root_app = os.path.join(root_inv, 'appliance')
+    # "C:/Users/pamid/PycharmProjects/djagoproject/robot/inv/appliance"
+    files = os.listdir(root_app)
+    # for path, dirs, files in os.walk(root_app):
     for files in files:
         if files.endswith('.py'):
             smp_suites.add(files)
     return Response(smp_suites.__dict__)
 
 
-def update_session_data(username,command,stime,etime,exe_session_id):
+def update_session_data(username, command, stime, etime, exe_session_id):
     # import pymysql
     #
     # cnx = pymysql.connect(host='localhost', user='root', password='Pamidi7997', db='mydatabase')
     # cursor = cnx.cursor()
     # exe_session_id = uuid.UUID
-    # cursor.execute("insert into user_execution_session_log(username,command,starttime,endtime,exe_session_id)VALUES(%s,%s,%s,%s,%s)",('username','command',stime,etime,'exe_session_id'))
+    # cursor.execute("insert into user_execution_session_log(username,command,starttime,endtime,exe_session_id)VALUES(%s,%s,%s,%s,%s)",('username','command',stime,etime,'exe_session_id')) # NOQA
     # # for i in cursor.fetchall():
     # #     print(i)
     # # Make sure data is committed to the database
@@ -195,14 +204,14 @@ def update_session_data(username,command,stime,etime,exe_session_id):
     #
     # cursor.close()
     # cnx.close()
-    ## update from here
-   # p = user_execution_session_log(username=username,command=command,sttime=stime, setime=datetime(etime),sessionexeid=exe_session_id)
-    p=user_execution_session_log()
-    p.username=username
-    p.command=command
-    p.starttime=stime
-    p.endtime=etime
-    p.session_exe_id=exe_session_id
+    # update from here
+    # p = user_execution_session_log(username=username,command=command,sttime=stime, setime=datetime(etime),sessionexeid=exe_session_id) # NOQA
+    p = user_execution_session_log()
+    p.username = username
+    p.command = command
+    p.starttime = stime
+    p.endtime = etime
+    p.session_exe_id = exe_session_id
     p.save()
 
 
@@ -221,14 +230,14 @@ def get_options(request):
     command = str(request.data)
     # session_id=request.session['username']
 
-    stime=ststart
+    stime = ststart
     etime = stout
     # cnx = pymysql.connect(host='localhost', user='root', password='Pamidi7997', db='mydatabase')
     # cursor = cnx.cursor()
     exe_session_id = uuid.uuid4().hex
     # print(type(exe_session_id),type(command))
     # cursor.execute(
-    #     "INSERT INTO user_execution_session_log(username,command,starttime,endtime,exe_session_id)VALUES(%s,%s,%s,%s,%s)",(user, command, stime, etime, exe_session_id))
+    #     "INSERT INTO user_execution_session_log(username,command,starttime,endtime,exe_session_id)VALUES(%s,%s,%s,%s,%s)",(user, command, stime, etime, exe_session_id))  # NOQA
     # # for i in cursor.fetchall():
     # #     print(i)
     # # Make sure data is committed to the database
@@ -247,18 +256,20 @@ def get_options(request):
     #
     # cursor.close()
     # cnx.close()
-    update_session_data(username,command,stime,etime,exe_session_id)
+    update_session_data(username, command, stime, etime, exe_session_id)
     # p=user_execution_session_log(username=username,command=command,sttime=stime,setime=etime,sessionexeid=exe_session_id)
     # p.save()
     return HttpResponse('')
 
 # Create your views here.
-#printing details from db
+# printing details from db
 # @api_view(["GET"])
 # def commands(request):
 #     com=get_commands()
 #     com.add(sys.argv)
 #     return Response(com.__dict__)
+
+
 @api_view(['GET'])
 def history(request):
     if request.method == "POST":
@@ -266,7 +277,7 @@ def history(request):
     # if request.query_params.get('user') == None:
     #     raise RuntimeError("User not specified")
     # user = request.query_params.get('user')
-    user=request.session['username']
+    user = request.session['username']
     data = user_execution_session_log.objects.filter(username=user)
     # for item in data:
     #     username=item.username
@@ -283,3 +294,38 @@ def history(request):
         data_dic.append(sub_dic)
     # return JsonResponse({'result':data_dic}, content_type="application/json")
     return Response(data_dic)
+
+
+@api_view(['GET'])
+def update_message(request):
+    sessionid = request.query_params.get('sessionid')
+    message = request.query_params.get('message')
+
+    p = test_execution_log()
+    p.message = message
+    p.session_id = sessionid
+    p.save()
+    return HttpResponse("")
+
+
+@api_view(['POST'])
+def log_stream(request):
+    if request.method == "GET":
+        raise RuntimeError
+    # Raise bad response on illegal request
+    if request.META.get('HTTP_COUNT', '-1') == '-1' or request.META.get('HTTP_COUNT', '-1').isdigit() is False \
+            or request.META.get('HTTP_SESSIONID', '-1') == '-1':
+        return HttpResponse(status='400')
+    count = request.META.get('HTTP_COUNT', '-1')
+    sessionid = request.META.get('HTTP_SESSIONID', '-1')
+    now = timezone.now()
+    if test_execution_log.objects.filter(session_id=sessionid).exists():
+        resultset = test_execution_log.objects.filter(Q(session_id=sessionid) & Q(timestamp__lt=now)).values('message')
+        # print(resultset.query)
+        data = []
+        for item in resultset:
+            data.append(item['message'])
+
+        return JsonResponse({'result': data[int(count):], 'count': len(data) - 1}, content_type="application/json")
+    else:
+        return HttpResponse(status=404)

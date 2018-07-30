@@ -15,7 +15,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.conf.urls import url, include
 from rest_framework import routers
 from django.conf.urls import url, include
 from myapp import views
@@ -26,7 +25,7 @@ router.register(r'users',views.UserViewSet)
 urlpatterns = [
 
     url(r'^admin/', admin.site.urls),
-    path('',views.home,name='home'),
+    path('', views.home, name='home'),
     url(r'^', include('BucketList.urls')),
     url(r'^', include('myapp.urls')),
     url(r'^', include(router.urls)),
