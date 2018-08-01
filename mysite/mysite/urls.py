@@ -20,7 +20,7 @@ from django.conf.urls import url, include
 from myapp import views
 
 router = routers.DefaultRouter()
-router.register(r'users',views.UserViewSet)
+router.register(r'users', views.UserViewSet)
 
 urlpatterns = [
 
