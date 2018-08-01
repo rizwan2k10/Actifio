@@ -1,0 +1,85 @@
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+#main {
+    transition: margin-left .5s;
+    padding: 16px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+
+ul{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: #333333;
+}
+ul li{
+    display: inline-block;
+    position: relative;
+    width: 210px;
+    height: 40px;
+    margin-right: 29px;
+    line-height: 31px;
+    text-align: center;
+}
+ul li a{
+    display: block;
+    padding: 8px 25px;
+    color: white;
+    text-decoration: none;
+}
+ul li a:hover{
+    color: #fff;
+    background: #939393;
+}
+
+ul li ul.dropdown{
+    max-width: 100%; /* Set width of the dropdown */
+    background: #333333;
+    display: none;
+    position: absolute;
+    z-index:999;
+    left: 0;
+}
+ul li:hover ul.dropdown{
+    display: block;	/* Display the dropdown */
+}
+ul li ul.dropdown li{
+    display: block;
+}
