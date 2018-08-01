@@ -2,13 +2,12 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from .serializers import UserSerializer, SimpleDataSerializer, get_commandsserializer, UserSessionLog
 from rest_framework import viewsets
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpRequest
 from rest_framework.response import Response
-from .library import asyncio_stream
+from .library import asyncio_stream, asyncio_generator
 from .serializers import *
 from .forms import UserRegistrationForm
 from django.forms.models import model_to_dict
-from .library import timer
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 # from myapp.library import timer
@@ -30,12 +29,8 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-# class command_view(viewsets.ModelViewSet):
-#     queryset = user_execution_session_log.objects.all()
-#     serializer_class = get_commandsserializer
-#     def perform_create(self, serializer):
-#         """Save the post data when creating a new bucketlist."""
-#         serializer.save()
+
+threader = None
 
 
 def home(request):
@@ -43,7 +38,7 @@ def home(request):
         return render(request, 'logindemo.html')
     else:
 
-        return render(request, 'demo.html', {'rc': user_execution_session_log.command.__dict__})
+        return render(request, 'home.html', {'rc': user_execution_session_log.command.__dict__})
         # return HttpResponseRedirect('/actifio/')
 
 
@@ -59,18 +54,15 @@ def user_login(request):
                 if user is not None:
 
                     request.session['username'] = username
-                    # suser=request.session['username']
                     request.session.modified = True
                     login(request, user)
-                    # ststart=datetime.datetime.now(tz=timezone.utc)
                     return HttpResponseRedirect(reverse('home'))
-                    # return render(request, "demo.html")
                 else:
                     context["error"] = "username or password is not correct"
                     return render(request, 'logindemo.html', context)
 
             # else:
-                # return render(request,'demo.html')
+                # return render(request,'home.html')
 
         else:
             return render(request, 'logindemo.html')
@@ -81,9 +73,6 @@ def user_logout(request):
         logout(request)
         # Redirect back to index page.
         return HttpResponseRedirect('/')
-    # else:
-    #
-    #     return HttpResponseRedirect('/')
 
 
 def register(request):
@@ -105,13 +94,6 @@ def register(request):
     else:
         form = UserRegistrationForm()
         return render(request, 'register.html', {'form': form})
-
-
-# def hello_world(request):
-#         # os.chdir('myapp')
-#         a = timer()
-#
-#         return render(request,{{'data':dict(a.time())}})
 
 
 @api_view(['GET'])
@@ -179,7 +161,10 @@ def filenames_appliance(request):
     return Response(smp_suites.__dict__)
 
 
-def update_session_data(username, command, stime, etime, exe_session_id):
+# async = asyncio_stream.ThreadPool(5)
+
+
+def update_session_data(username, command, stime, etime, exe_session_id, server_port):
     # import pymysql
     #
     # cnx = pymysql.connect(host='localhost', user='root', password='Pamidi7997', db='mydatabase')
@@ -213,6 +198,9 @@ def update_session_data(username, command, stime, etime, exe_session_id):
     p.endtime = etime
     p.session_exe_id = exe_session_id
     p.save()
+    global threader
+    threader = asyncio_generator.Threader()  # .create_async_thread("ping google.com", exe_session_id, '')
+    threader.create_thread(command, exe_session_id, server_port)
 
 
 @api_view(['POST'])
@@ -256,18 +244,9 @@ def get_options(request):
     #
     # cursor.close()
     # cnx.close()
-    update_session_data(username, command, stime, etime, exe_session_id)
-    # p=user_execution_session_log(username=username,command=command,sttime=stime,setime=etime,sessionexeid=exe_session_id)
-    # p.save()
-    return HttpResponse('')
+    update_session_data(username, command, stime, etime, exe_session_id, server_port=request.META["SERVER_PORT"])
+    return JsonResponse({'session_id': exe_session_id}, content_type="application/json")
 
-# Create your views here.
-# printing details from db
-# @api_view(["GET"])
-# def commands(request):
-#     com=get_commands()
-#     com.add(sys.argv)
-#     return Response(com.__dict__)
 
 
 @api_view(['GET'])
