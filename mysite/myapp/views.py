@@ -305,6 +305,7 @@ def log_stream(request):
         for item in resultset:
             data.append(item['message'])
 
-        return JsonResponse({'result': data[int(count):], 'count': len(data) - 1}, content_type="application/json")
+        return JsonResponse({'result': data[int(count):], 'count': len(data) - 1, 'sessionid': sessionid},
+                            content_type="application/json")
     else:
         return HttpResponse(status=404)
