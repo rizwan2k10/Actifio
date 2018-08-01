@@ -1,10 +1,12 @@
 from django.conf.urls import url, include
 from django.urls import path
 from django.contrib import admin
-from .views import register, user_login, user_logout, filenames_host, filenames_testcases, filenames_appliance, get_workspace, get_options, update_session_data, history, log_stream, update_message
+from .views import register, user_login,\
+    user_logout, filenames_host, filenames_testcases, filenames_appliance, get_workspace, \
+    get_options, history, log_stream, update_message, home
 urlpatterns = [
 
-    # url(r'^/actifio/', home),
+    url(r'^home.html', home),
     # url(r'^commands', update_session_data),
     url(r'^getoptions', get_options),
     url(r'^root/', get_workspace),
