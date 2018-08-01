@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href='{% static "custom_design.css" %}'/>
+</head>
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src='{% static "operations.js" %}'></script>
+    <script src='{% static "gui_anime.js" %}'></script>
+
+    <div id="mySidenav" class="sidenav">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    </div>
+
+
+    {% csrf_token %}
+
+    <img src='{% static "actifiologo.png" %}' width=1520 height=262>
+         <ul>
+            <li><a href="https://www.actifio.com/#sthash.xCKDJxGC.dpbs">Home</a></li>
+            <li><a href="https://www.actifio.com/company/">About</a></li>
+            <li>
+                <a href="#">Products</a>
+                <ul class="dropdown">
+                    <li><a href="https://www.actifio.com/database-cloning/#sthash.chu3v0Kn.dpbs">SKY DB</a></li>
+                    <li><a href="https://www.actifio.com/data-management-for-ibm-cloud/">SKY for IBM cloud</a></li>
+                    <li><a href="https://www.actifio.com/technology/integrations/oracle/">SKY for Oracle cloud</a></li>
+                </ul>
+            </li>
+            <li><a href="#">Services</a>
+                <ul class="dropdown">
+                    <li><a href="https://www.actifio.com/global-services/">Global Services</a></li>
+                    <li><a href="https://www.actifio.com/global-services/actifio-consultancy-services/">Consulting</a></li>
+                </ul>
+            </li>
+            <li><a href="#">Contact</a></li>
+             <li><form method="post" action="/logout/">{% csrf_token %} <input type="submit" value="Logout"></form></li>
+        </ul>
+
+
+<span style="font-size:20px;cursor:pointer" onclick="openNav()">&#9776; history</span>
+    <div>
+        <form method="post" action="/root/">
+            {% csrf_token %}
+            <center><table>
+                <tr>
+                    <td>Workspace location: </td>
+                    <td><textarea id="views" name="views" cols="40" rows="2"></textarea></td>
+                    </tr>
+                <tr>
+                    <td>
+                        <input type="submit" value="submit"/>
+                    </td>
+                    <td>
+                        <input type="button" value="dropdown menu" onclick="get_details()"/>
+                    </td>
+                </tr>
+            </table></center>
+        </form>
+    </div>
+<br><br><br>
+
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+&emsp;&emsp;&emsp;&emsp;&emsp;
+<br>
+    Testcases:<select id="Tselect">
+        <option>select</option>
+        </select>
+    <br/>
+    Host:<select id="Hselect">
+        <option>select</option>
+    </select>
+
+    <button onclick="get_Hdd()">+</button>
+    <p style="display:inline" id="Hdemo"></p>
+
+    <br/>
+    Appliances:<select id="Aselect" align="center">
+        <option>select</option>
+        </select>
+    <button onclick="get_Add()">+</button>
+    <p style="display:inline" id="Ademo"></p>
+
+</div>
+<div>
+    <center><table>
+        <tr>
+            <td><input type="button" value="Execute" onclick="get_options()"></td>
+            <td><button onclick="get_history()">history</button></td>
+        </tr>
+    </table></center>
+        <p id="com" style="display:inline"></p>
+    </div>
+<br>
+<br>
+
+<textarea id='exe_session' class="body" cols="207" rows="18"></textarea>
+
+
+</body>
+</html>
